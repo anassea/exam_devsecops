@@ -8,56 +8,40 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
-
 @Service
 public class EmployeeService {
 
     @Autowired
     private EmployeeRepository repository;
 
-    @Autowired
-    private MessageSource messageSource;
-
-    public Employee addEmployee(Employee employee, Locale locale) {
+    public Employee addEmployee(Employee employee) {
         if (repository.findByEmail(employee.getEmail()).isPresent()) {
-            throw new IllegalArgumentException(
-                    messageSource.getMessage("error.email.in.use", null, locale)
-            );
+            throw new IllegalArgumentException("Email is already in use.");
         }
         return repository.save(employee);
     }
 
-    public Employee getEmployee(Long id, Locale locale) {
+    public Employee getEmployee(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        messageSource.getMessage("error.employee.not.found", null, locale)
-                ));
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found."));
     }
 
     public List<Employee> getAllEmployees() {
         return repository.findAll();
     }
 
-    public Employee updateEmployee(Long id, Employee newEmployeeData, Locale locale) {
+    public Employee updateEmployee(Long id, Employee newEmployeeData) {
         Employee employee = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        messageSource.getMessage("error.employee.not.found", null, locale)
-                ));
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found."));
         employee.setName(newEmployeeData.getName());
         employee.setEmail(newEmployeeData.getEmail());
         return repository.save(employee);
     }
 
-    public void deleteEmployee(Long id, Locale locale) {
+    public void deleteEmployee(Long id) {
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException(
-                    messageSource.getMessage("error.employee.not.found", null, locale)
-            );
+            throw new IllegalArgumentException("Employee not found.");
         }
         repository.deleteById(id);
-    }
-
-    public MessageSource getMessageSource() {
-        return messageSource;
     }
 }
